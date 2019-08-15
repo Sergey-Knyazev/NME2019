@@ -5,6 +5,11 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=FALSE, warning=FALSE, message=FALSE)
+```
+
 ```{r setup, include=FALSE}
 # DK = no
 my_net<-function(duration, stat, n) {
@@ -79,6 +84,7 @@ dx_ran<-netdx(est_ran, nsims = 5, nsteps = nStep,
 plot(dx_ran)
 ```
 
+
 ```{r}
 sim_ran<-my_sim(est_ran, dis_par, nInf, nStep, 5)
 ```
@@ -87,7 +93,8 @@ sim_ran<-my_sim(est_ran, dis_par, nInf, nStep, 5)
 plot(sim_ran, sim.lines = TRUE)
 ```
 
-B&D
+## SI Model
+Birth and Death added of Model 1
 ```{r}
 dis_par_bd1<-param.net(inf.prob = 0.1, act.rate = 2, a.rate = 0.01, ds.rate = 0.01, di.rate = 0.05)
 sim_bd1<-my_sim(net1, dis_par_bd1, nInf, nStep, 5)
@@ -96,6 +103,24 @@ sim_bd1<-my_sim(net1, dis_par_bd1, nInf, nStep, 5)
 ```{r}
 plot(sim1)
 ```
+
+Dissolution Coefficient of SI. 
+
+Overall death rate is .11, weighted average of infection and suspectibles.
+```{r}
+coef.diss <- dissolution_coefs(dissolution = ~offset(edges),
+                               duration = 26, d.rate = .035)
+
+est1 <- netest(nw, formation, target.stats, coef.diss)
+
+nw <- network.initialize(100, directed = FALSE)
+coef.diss <- dissolution_coefs(~offset(edges), duration)
+formation <- ~edges + degree(0:2) + degrange(from = 4)
+netest(nw, formation, stat, coef.diss)
+
+
+```
+
 
 ```{r}
 my_movie<-function(sim) {
