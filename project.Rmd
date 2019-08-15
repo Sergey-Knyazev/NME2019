@@ -6,11 +6,12 @@ output: html_document
 ```{r setup, include=FALSE}
 # DK = no
 my_net<-function(duration, stat, n) {
-nw <- network.initialize(100, directed = FALSE)
+nw <- network.initialize(n, directed = FALSE)
 coef.diss <- dissolution_coefs(~offset(edges), duration)
 formation <- ~edges + degree(0:2) + degrange(from = 4)
 netest(nw, formation, stat, coef.diss)
 }
+
 my_sim<-function(est, param, nsim, nsteps) {
 r<-list()
 r$dx <- netdx(est, nsims = 5, nsteps = nsteps,
