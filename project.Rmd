@@ -20,37 +20,41 @@ netdx(net, nsims = nsim, nsteps = nsteps,
 }
 my_sim<-function(dx, param, numInf, nsteps, nsim) {
 init <- init.net(i.num = numInf)
-control <- control.net(type = "SIS", nsims = nsim, nsteps = nsteps)
+control <- control.net(type = "SI", nsims = nsim, nsteps = nsteps)
 netsim(dx, param, init, control)
 }
 ```
 
+```{r}
+n<-100
+dis_par<-param.net(inf.prob = 0.1, act.rate = 5)
+nInf<-10
+nStep<-100
+```
+
+Model 1 DK=No
 ```{r, message=F, warning=F}
 net_par1 = c(45.5, 35, 45, 14, 0)
 duration1 = 22
-n1 = 100
-net1<-my_net(duration1, net_par1, n1)
-dx1<-my_dx(net1, net_par1, 5, 200)
-dis_par1<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
-sim1<-my_sim(net1, dis_par1, 1, 200, 5)
+net1<-my_net(duration1, net_par1, n)
+dx1<-my_dx(net1, net_par1, 5, nStep)
+sim1<-my_sim(net1, dis_par, nInf, nStep, 5)
 ```
-Model 1 DK=No
+
 ```{r}
 plot(dx1)
 ```
 
 ```{r}
-plot(sim1)
+plot(sim1, sim.lines = TRUE)
 ```
 Model 1 DK=Yes
 ```{r, message=F, warning=F}
 net_par2 = c(81.5, 10, 41, 25, 0)
 duration2 = 26
-n2 = 100
-net2<-my_net(duration1, net_par1, n1)
-dx2<-my_dx(net1, net_par1, 5, 200)
-dis_par2<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
-sim2<-my_sim(net1, dis_par1, 1, 200, 5)
+net2<-my_net(duration2, net_par2, n)
+dx2<-my_dx(net2, net_par2, 5, nStep)
+sim2<-my_sim(net2, dis_par, nInf, nStep, 5)
 ```
 
 ```{r}
@@ -58,7 +62,7 @@ plot(dx2)
 ```
 
 ```{r}
-plot(sim2)
+plot(sim2, sim.lines = TRUE)
 ```
 Random Network
 ```{r}
@@ -67,7 +71,7 @@ coef.diss <- dissolution_coefs(~offset(edges), duration)
 formation <- ~edges + degrange(from = 4)
 est_ran<-netest(nw_ran, formation, c(15,0), coef.diss)
 
-dx_ran<-netdx(est_ran, nsims = 5, nsteps = 200,
+dx_ran<-netdx(est_ran, nsims = 5, nsteps = nStep,
         nwstats.formula = ~edges + degree(0:4))
 ```
 
@@ -76,16 +80,25 @@ plot(dx_ran)
 ```
 
 ```{r}
-dis_par_ran<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
-sim_ran<-my_sim(net1, dis_par1, 1, 200, 5)
+sim_ran<-my_sim(est_ran, dis_par, nInf, nStep, 5)
 ```
 
 ```{r}
 plot(sim_ran, sim.lines = TRUE)
 ```
 
+B&D
+```{r}
+dis_par_bd1<-param.net(inf.prob = 0.1, act.rate = 2, a.rate = 0.01, ds.rate = 0.01, di.rate = 0.05)
+sim_bd1<-my_sim(net1, dis_par_bd1, nInf, nStep, 5)
+```
 
 ```{r}
+plot(sim1)
+```
+
+```{r}
+my_movie<-function(sim) {
 
 nw <- get_network(sim1$sim)
 
@@ -107,6 +120,7 @@ render.d3movie(
   vertex.border = "lightgrey",
   displaylabels = FALSE,
   filename = paste0(getwd(), "/movie.html"))
+}
 ```
 
 
