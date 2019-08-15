@@ -12,11 +12,10 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
 
 ```{r setup, include=FALSE}
 # DK = no
-my_net<-function(duration, stat, n) {
+my_net<-function(duration, stat, n, diss=dissolution_coefs(~offset(edges), duration)) {
 nw <- network.initialize(n, directed = FALSE)
-coef.diss <- dissolution_coefs(~offset(edges), duration)
 formation <- ~edges + degree(0:2) + degrange(from = 4)
-netest(nw, formation, stat, coef.diss)
+netest(nw, formation, stat, diss)
 }
 
 my_dx<-function(net, param, nsim, nsteps) {
@@ -110,16 +109,18 @@ Overall death rate is .11, weighted average of infection and suspectibles.
 ```{r}
 coef.diss <- dissolution_coefs(dissolution = ~offset(edges),
                                duration = 26, d.rate = .035)
-
-est1 <- netest(nw, formation, target.stats, coef.diss)
-
-nw <- network.initialize(100, directed = FALSE)
-coef.diss <- dissolution_coefs(~offset(edges), duration)
-formation <- ~edges + degree(0:2) + degrange(from = 4)
-netest(nw, formation, stat, coef.diss)
-
-
+dissol_net <-my_net(duration1, net_par1, n, coef.diss)
+dissol_dx<-my_dx(dissol_net, net_par1, 5, nStep)
+dissol_sim<-my_sim(dissol_net, dis_par_bd1, nInf, nStep, 5)
 ```
+
+```{r}
+plot(dissol_sim)
+```
+
+```{r}
+```
+
 
 
 ```{r}
