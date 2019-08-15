@@ -12,24 +12,37 @@ formation <- ~edges + degree(0:2) + degrange(from = 4)
 netest(nw, formation, stat, coef.diss)
 }
 
-my_sim<-function(est, param, nsim, nsteps) {
-r<-list()
-r$dx <- netdx(est, nsims = 5, nsteps = nsteps,
-            nwstats.formula = ~edges + degree(0:4))
-init <- init.net(i.num = 1)
-control <- control.net(type = "SIS", nsims = nsim, nsteps = nsteps)
-r$sim <- netsim(est, param, init, control)
-return(r)
+my_dx<-function(net, param, nsim, nsteps) {
+netdx(net, nsims = nsim, nsteps = nsteps,
+      nwstats.formula = ~edges + degree(0:4))
 }
+my_sim<-function(dx, param, numInf, nsteps) {
+init <- init.net(i.num = numInf)
+control <- control.net(type = "SIS", nsims = 1, nsteps = nsteps)
+netsim(dx, param, init, control)
+}
+```
 
-#a<-my_net(22,c(45.5, 35, 45, 14, 0), 100)
-b<-my_sim(a, param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01), 1, 500)
+```{r}
+net_par1 = c(45.5, 35, 45, 14, 0)
+duration1 = 22
+n1 = 100
+net1<-my_net(duration1, net_par1, n1)
+dx1<-my_dx(net1, net_par1, 5, 200)
+dis_par1<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
+sim1<-my_sim(net1, dis_par1, 5, 500)
+```
 
-nw <- get_network(b$sim)
+```{r}
+```
+
+```{r}
+
+nw <- get_network(sim1$sim)
 
 nw <- color_tea(nw, verbose = FALSE)
 
-slice.par <- list(start = 1, end = 500, interval = 1,
+slice.par <- list(start = 1, end = 100, interval = 1,
                   aggregate.dur = 1, rule = "any")
 render.par <- list(tween.frames = 10, show.time = FALSE)
 plot.par <- list(mar = c(0, 0, 0, 0))
