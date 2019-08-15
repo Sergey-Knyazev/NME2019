@@ -1,6 +1,8 @@
 ---
 title: "projectRMD.Rmd"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -16,25 +18,72 @@ my_dx<-function(net, param, nsim, nsteps) {
 netdx(net, nsims = nsim, nsteps = nsteps,
       nwstats.formula = ~edges + degree(0:4))
 }
-my_sim<-function(dx, param, numInf, nsteps) {
+my_sim<-function(dx, param, numInf, nsteps, nsim) {
 init <- init.net(i.num = numInf)
-control <- control.net(type = "SIS", nsims = 1, nsteps = nsteps)
+control <- control.net(type = "SIS", nsims = nsim, nsteps = nsteps)
 netsim(dx, param, init, control)
 }
 ```
 
-```{r}
+```{r, message=F, warning=F}
 net_par1 = c(45.5, 35, 45, 14, 0)
 duration1 = 22
 n1 = 100
 net1<-my_net(duration1, net_par1, n1)
 dx1<-my_dx(net1, net_par1, 5, 200)
 dis_par1<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
-sim1<-my_sim(net1, dis_par1, 5, 500)
+sim1<-my_sim(net1, dis_par1, 1, 200, 5)
+```
+Model 1 DK=No
+```{r}
+plot(dx1)
 ```
 
 ```{r}
+plot(sim1)
 ```
+Model 1 DK=Yes
+```{r, message=F, warning=F}
+net_par2 = c(81.5, 10, 41, 25, 0)
+duration2 = 26
+n2 = 100
+net2<-my_net(duration1, net_par1, n1)
+dx2<-my_dx(net1, net_par1, 5, 200)
+dis_par2<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
+sim2<-my_sim(net1, dis_par1, 1, 200, 5)
+```
+
+```{r}
+plot(dx2)
+```
+
+```{r}
+plot(sim2)
+```
+Random Network
+```{r}
+nw_ran <- network.initialize(n, directed = FALSE)
+coef.diss <- dissolution_coefs(~offset(edges), duration)
+formation <- ~edges + degrange(from = 4)
+est_ran<-netest(nw_ran, formation, c(15,0), coef.diss)
+
+dx_ran<-netdx(est_ran, nsims = 5, nsteps = 200,
+        nwstats.formula = ~edges + degree(0:4))
+```
+
+```{r}
+plot(dx_ran)
+```
+
+```{r}
+dis_par_ran<-param.net(inf.prob = 0.4, act.rate = 2, rec.rate = 0.01)
+sim_ran<-my_sim(net1, dis_par1, 1, 200, 5)
+```
+
+```{r}
+plot(sim_ran, sim.lines = TRUE)
+```
+
 
 ```{r}
 
